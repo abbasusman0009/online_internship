@@ -49,6 +49,17 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        
+        # Ensure admin user exists (useful for Render deployment)
+        admin_email = 'admin@oims.com'
+        admin_user = User.query.filter_by(email=admin_email).first()
+        if not admin_user:
+            from werkzeug.security import generate_password_hash
+            hashed_password = generate_password_hash('admin123')
+            new_admin = User(email=admin_email, password_hash=hashed_password, role='admin')
+            db.session.add(new_admin)
+            db.session.commit()
+            print(f"Admin user automatically created: {admin_email} / admin123")
 
     return app
 
