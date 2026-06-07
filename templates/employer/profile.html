@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Company Profile - OIMS{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <h2>Edit Company Profile</h2>
+    <form method="POST" action="{{ url_for('employer.profile') }}">
+        <div class="form-group">
+            <label for="company_name" class="form-label">Company Name</label>
+            <input type="text" id="company_name" name="company_name" class="form-control" value="{{ profile.company_name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="website" class="form-label">Website</label>
+            <input type="url" id="website" name="website" class="form-control" value="{{ profile.website or '' }}" placeholder="https://www.example.com">
+        </div>
+
+        <div class="form-group">
+            <label for="description" class="form-label">Company Description</label>
+            <textarea id="description" name="description" class="form-control" rows="5">{{ profile.description or '' }}</textarea>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+            <a href="{{ url_for('employer.dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

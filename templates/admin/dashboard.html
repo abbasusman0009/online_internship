@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - OIMS{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-3" style="margin-bottom: 2rem;">
+    <div class="card text-center" style="margin-bottom: 0;">
+        <h3 style="font-size: 2.5rem; color: var(--accent); margin-bottom: 0.5rem;">{{ users|length }}</h3>
+        <p style="color: var(--secondary); font-weight: 500;">Total Users</p>
+    </div>
+    <div class="card text-center" style="margin-bottom: 0;">
+        <h3 style="font-size: 2.5rem; color: var(--accent); margin-bottom: 0.5rem;">{{ internships|length }}</h3>
+        <p style="color: var(--secondary); font-weight: 500;">Total Internships</p>
+    </div>
+    <div class="card text-center" style="margin-bottom: 0;">
+        <h3 style="font-size: 2.5rem; color: var(--accent); margin-bottom: 0.5rem;">{{ applications|length }}</h3>
+        <p style="color: var(--secondary); font-weight: 500;">Total Applications</p>
+    </div>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="margin-bottom: 0;">Recent Users</h3>
+        <a href="{{ url_for('admin.export_applications') }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Export Applications (CSV)</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users[-5:]|reverse %}
+            <tr>
+                <td>{{ user.email }}</td>
+                <td>
+                    <span style="padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; background-color: var(--secondary-bg); color: var(--secondary);">
+                        {{ user.role|capitalize }}
+                    </span>
+                </td>
+                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="grid grid-cols-2" style="margin-bottom: 2rem;">
+    <div class="card">
+        <h3 style="margin-bottom: 1.5rem; text-align: center;">User Roles Distribution</h3>
+        <canvas id="rolesChart"></canvas>
+    </div>
+    <div class="card">
+        <h3 style="margin-bottom: 1.5rem; text-align: center;">Application Statuses</h3>
+        <canvas id="statusChart"></canvas>
+    </div>
+</div>
+
+<script>
+    const rolesCtx = document.getElementById('rolesChart').getContext('2d');
+    new Chart(rolesCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Students', 'Employers', 'Admins'],
+            datasets: [{
+                data: [{{ roles_count.student }}, {{ roles_count.employer }}, {{ roles_count.admin }}],
+                backgroundColor: ['#3B82F6', '#1E3A8A', '#10B981']
+            }]
+        }
+    });
+
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Submitted', 'Under Review', 'Accepted', 'Rejected'],
+            datasets: [{
+                label: 'Count',
+                data: [{{ app_status_count.Submitted }}, {{ app_status_count['Under Review'] }}, {{ app_status_count.Accepted }}, {{ app_status_count.Rejected }}],
+                backgroundColor: ['#6B7280', '#3B82F6', '#10B981', '#EF4444']
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center" style="padding: 4rem 0;">
+    <h1 style="font-size: 3rem; color: var(--secondary); margin-bottom: 1.5rem;">Welcome to OIMS</h1>
+    <p style="font-size: 1.25rem; color: var(--text-main); margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+        The premier Online Internship Management System connecting talented students with top employers. Streamline your internship journey today.
+    </p>
+    
+    {% if not current_user.is_authenticated %}
+    <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
+        <a href="{{ url_for('auth.register') }}?role=student" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 1.5rem;">I'm a Student</a>
+        <a href="{{ url_for('auth.register') }}?role=employer" class="btn btn-secondary" style="font-size: 1.1rem; padding: 0.75rem 1.5rem;">I'm an Employer</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="grid grid-cols-3" style="margin-top: 4rem;">
+    <div class="card text-center">
+        <h3 style="color: var(--accent);">For Students</h3>
+        <p>Create a profile, browse exciting internship opportunities, apply seamlessly, and track your application status in real-time.</p>
+    </div>
+    <div class="card text-center">
+        <h3 style="color: var(--accent);">For Employers</h3>
+        <p>Post internships, review top-tier candidates, manage applications efficiently, and provide structured feedback to nurture talent.</p>
+    </div>
+    <div class="card text-center">
+        <h3 style="color: var(--accent);">For Administrators</h3>
+        <p>Oversee the entire internship lifecycle, generate comprehensive reports, and ensure a smooth process for all stakeholders.</p>
+    </div>
+</div>
+{% endblock %}

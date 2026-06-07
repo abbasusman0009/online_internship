@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Internships - OIMS{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2>Manage Internships</h2>
+</div>
+
+<div class="card">
+    {% if internships %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for internship in internships %}
+            <tr>
+                <td><strong>{{ internship.title }}</strong></td>
+                <td>{{ internship.employer.company_name }}</td>
+                <td>
+                    <span style="padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
+                    {% if internship.status == 'Open' %}background-color: #D1FAE5; color: #065F46;
+                    {% else %}background-color: #F3F4F6; color: #4B5563;{% endif %}">
+                        {{ internship.status }}
+                    </span>
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.delete_internship', internship_id=internship.id) }}" onsubmit="return confirm('Are you sure you want to delete this internship and all its applications?');">
+                        <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem; background-color: var(--status-danger); color: white; border: none;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center" style="padding: 2rem 0;">
+        <p style="color: var(--text-main);">No internships posted yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

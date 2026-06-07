@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Internships - OIMS{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h2>Manage Postings</h2>
+    <a href="{{ url_for('employer.post_internship') }}" class="btn btn-primary">+ New Posting</a>
+</div>
+
+<div class="card">
+    {% if internships %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Date Posted</th>
+                <th>Status</th>
+                <th>Applications</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for internship in internships|sort(attribute='created_at', reverse=true) %}
+            <tr>
+                <td><strong>{{ internship.title }}</strong></td>
+                <td>{{ internship.location }}</td>
+                <td>{{ internship.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <span style="padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
+                    {% if internship.status == 'Open' %}background-color: #D1FAE5; color: #065F46;
+                    {% else %}background-color: #F3F4F6; color: #4B5563;{% endif %}">
+                        {{ internship.status }}
+                    </span>
+                </td>
+                <td>
+                    <span style="font-weight: bold; color: var(--accent);">{{ internship.applications|length }}</span> applicants
+                </td>
+                <td>
+                    <a href="{{ url_for('employer.applicants', internship_id=internship.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">View Applicants</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center" style="padding: 2rem 0;">
+        <p style="margin-bottom: 1rem; color: var(--text-main);">You haven't posted any internships yet.</p>
+        <a href="{{ url_for('employer.post_internship') }}" class="btn btn-primary">Post Your First Internship</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

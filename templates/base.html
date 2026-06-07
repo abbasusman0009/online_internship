@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OIMS{% endblock %}</title>
+    <meta name="description" content="Online Internship Management System for Students and Employers">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a href="{{ url_for('index') }}" class="navbar-brand">OIMS</a>
+            <nav>
+                <ul class="nav-links">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.role == 'student' %}
+                            <li><a href="{{ url_for('student.dashboard') }}">Dashboard</a></li>
+                            <li><a href="{{ url_for('student.internships') }}">Internships</a></li>
+                            <li><a href="{{ url_for('student.applications') }}">My Applications</a></li>
+                            <li><a href="{{ url_for('student.profile') }}">Profile</a></li>
+                        {% elif current_user.role == 'employer' %}
+                            <li><a href="{{ url_for('employer.dashboard') }}">Dashboard</a></li>
+                            <li><a href="{{ url_for('employer.post_internship') }}">Post Internship</a></li>
+                            <li><a href="{{ url_for('employer.manage_internships') }}">Manage Postings</a></li>
+                            <li><a href="{{ url_for('employer.profile') }}">Profile</a></li>
+                        {% elif current_user.role == 'admin' %}
+                            <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+                            <li><a href="{{ url_for('admin.students') }}">Students</a></li>
+                            <li><a href="{{ url_for('admin.employers') }}">Employers</a></li>
+                            <li><a href="{{ url_for('admin.internships') }}">Internships</a></li>
+                        {% endif %}
+                        <li><a href="{{ url_for('auth.logout') }}" class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">Logout</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                        <li><a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">Register</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 2rem; padding-bottom: 2rem; min-height: 80vh;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer style="background-color: var(--secondary-bg); padding: 2rem 0; text-align: center; color: var(--secondary); border-top: 1px solid var(--border-color);">
+        <div class="container">
+            <p>&copy; 2026 Online Internship Management System. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

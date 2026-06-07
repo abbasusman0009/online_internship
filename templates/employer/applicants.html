@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Applicants - OIMS{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2>Applicants for: {{ internship.title }}</h2>
+    <a href="{{ url_for('employer.manage_internships') }}" style="color: var(--text-main);">&larr; Back to Postings</a>
+</div>
+
+<div class="card">
+    {% if applications %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Applicant Name</th>
+                <th>University</th>
+                <th>Date Applied</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications|sort(attribute='submission_date', reverse=true) %}
+            <tr>
+                <td>
+                    <strong>{{ app.student.first_name }} {{ app.student.last_name }}</strong><br>
+                    <small>{{ app.student.user.email }}</small>
+                </td>
+                <td>{{ app.student.university }}<br><small>{{ app.student.major }}</small></td>
+                <td>{{ app.submission_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('employer.update_status', application_id=app.id) }}" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <select name="status" class="form-control" style="padding: 0.25rem; font-size: 0.875rem; width: auto;" onchange="this.form.submit()">
+                            <option value="Submitted" {% if app.status == 'Submitted' %}selected{% endif %}>Submitted</option>
+                            <option value="Under Review" {% if app.status == 'Under Review' %}selected{% endif %}>Under Review</option>
+                            <option value="Accepted" {% if app.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                            <option value="Rejected" {% if app.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </form>
+                </td>
+                <td>
+                    <a href="{{ url_for('employer.feedback', application_id=app.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">Give Feedback</a>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" style="padding-top: 0; padding-bottom: 1rem; border-bottom: 2px solid var(--secondary-bg);">
+                    <div style="background-color: #F3F4F6; padding: 1rem; border-radius: 0.375rem; margin-bottom: 1.5rem;">
+                    <h5 style="margin-bottom: 0.5rem; color: var(--secondary);">Cover Letter</h5>
+                    <p style="white-space: pre-wrap; margin-bottom: 1rem;">{{ app.cover_letter }}</p>
+                    
+                    {% if app.resume_filename %}
+                    <h5 style="margin-bottom: 0.5rem; color: var(--secondary);">Resume / CV</h5>
+                    <a href="{{ url_for('static', filename='uploads/' ~ app.resume_filename) }}" target="_blank" class="btn btn-primary" style="display: inline-block; padding: 0.3rem 0.8rem; font-size: 0.9rem;">View Resume (PDF)</a>
+                    {% endif %}
+                </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center" style="padding: 2rem 0;">
+        <p style="color: var(--text-main);">No applications received yet for this position.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

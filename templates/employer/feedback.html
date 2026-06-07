@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Provide Feedback - OIMS{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2>Provide Feedback</h2>
+    <p style="margin-bottom: 2rem;">Feedback for <strong>{{ application.student.first_name }} {{ application.student.last_name }}</strong> regarding the <strong>{{ application.internship.title }}</strong> application.</p>
+    
+    <form method="POST" action="{{ url_for('employer.feedback', application_id=application.id) }}">
+        <div class="form-group">
+            <label for="rating" class="form-label">Rating (1-5)</label>
+            <select id="rating" name="rating" class="form-control" required>
+                <option value="">Select a rating</option>
+                <option value="5" {% if application.feedback and application.feedback.rating == 5 %}selected{% endif %}>5 - Excellent</option>
+                <option value="4" {% if application.feedback and application.feedback.rating == 4 %}selected{% endif %}>4 - Very Good</option>
+                <option value="3" {% if application.feedback and application.feedback.rating == 3 %}selected{% endif %}>3 - Good</option>
+                <option value="2" {% if application.feedback and application.feedback.rating == 2 %}selected{% endif %}>2 - Fair</option>
+                <option value="1" {% if application.feedback and application.feedback.rating == 1 %}selected{% endif %}>1 - Poor</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="comments" class="form-label">Constructive Comments</label>
+            <textarea id="comments" name="comments" class="form-control" rows="6" required>{{ application.feedback.comments if application.feedback else '' }}</textarea>
+            <small style="color: var(--text-main); display: block; margin-top: 0.5rem;">This feedback will be visible to the student to help them improve.</small>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            <a href="{{ url_for('employer.applicants', internship_id=application.internship.id) }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

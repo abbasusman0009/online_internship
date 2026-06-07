@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}My Applications - OIMS{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h2>My Applications</h2>
+    <a href="{{ url_for('student.internships') }}" class="btn btn-primary">Find More Internships</a>
+</div>
+
+<div class="card">
+    {% if applications %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Internship</th>
+                <th>Company</th>
+                <th>Date Applied</th>
+                <th>Status</th>
+                <th>Feedback</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications|sort(attribute='submission_date', reverse=true) %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('student.apply', internship_id=app.internship.id) }}" style="font-weight: 500;">
+                        {{ app.internship.title }}
+                    </a>
+                </td>
+                <td>{{ app.internship.employer.company_name }}</td>
+                <td>{{ app.submission_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <span style="padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
+                    {% if app.status == 'Submitted' %}background-color: #DBEAFE; color: #1E40AF;
+                    {% elif app.status == 'Under Review' %}background-color: #FEF3C7; color: #92400E;
+                    {% elif app.status == 'Accepted' %}background-color: #D1FAE5; color: #065F46;
+                    {% elif app.status == 'Rejected' %}background-color: #FEE2E2; color: #991B1B;{% endif %}">
+                        {{ app.status }}
+                    </span>
+                </td>
+                <td>
+                    {% if app.feedback %}
+                        <div style="font-size: 0.875rem;">
+                            <strong>Rating: {{ app.feedback.rating }}/5</strong>
+                            <p style="margin-top: 0.25rem; color: var(--text-main);">{{ app.feedback.comments }}</p>
+                        </div>
+                    {% else %}
+                        <span style="color: #6B7280; font-size: 0.875rem;">No feedback yet</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center" style="padding: 2rem 0;">
+        <p style="margin-bottom: 1rem; color: var(--text-main);">You haven't submitted any applications yet.</p>
+        <a href="{{ url_for('student.internships') }}" class="btn btn-primary">Browse Internships</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

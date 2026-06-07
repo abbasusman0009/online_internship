@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - OIMS{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-3">
+    <div style="grid-column: span 2;">
+        <h2>Welcome back, {% if profile.first_name %}{{ profile.first_name }}{% else %}{{ current_user.email }}{% endif %}!</h2>
+        <p style="color: var(--text-main); margin-bottom: 2rem;">Here's an overview of your internship journey.</p>
+        
+        <div class="grid grid-cols-2" style="margin-bottom: 2rem;">
+            <div class="card text-center" style="margin-bottom: 0;">
+                <h3 style="font-size: 2.5rem; color: var(--accent); margin-bottom: 0.5rem;">{{ profile.applications|length }}</h3>
+                <p style="color: var(--secondary); font-weight: 500;">Total Applications</p>
+            </div>
+            <div class="card text-center" style="margin-bottom: 0;">
+                <h3 style="font-size: 2.5rem; color: var(--status-success); margin-bottom: 0.5rem;">
+                    {{ profile.applications | selectattr('status', 'equalto', 'Accepted') | list | length }}
+                </h3>
+                <p style="color: var(--secondary); font-weight: 500;">Offers</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 0;">Saved Internships</h3>
+            </div>
+            {% if profile.saved_internships %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Company</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for internship in profile.saved_internships %}
+                    <tr>
+                        <td><strong>{{ internship.title }}</strong></td>
+                        <td>{{ internship.employer.company_name }}</td>
+                        <td>
+                            <a href="{{ url_for('student.apply', internship_id=internship.id) }}" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">View</a>
+                            <form method="POST" action="{{ url_for('student.save_internship', internship_id=internship.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">Unsave</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: var(--text-main);">You haven't saved any internships yet. <a href="{{ url_for('student.internships') }}" style="color: var(--accent); text-decoration: underline;">Browse internships</a>.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3>Recent Activity</h3>
+            {% if profile.applications %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Internship</th>
+                        <th>Status</th>
+                        <th>Date Applied</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in profile.applications[-3:]|reverse %}
+                    <tr>
+                        <td>{{ app.internship.title }}</td>
+                        <td>
+                            <span style="padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
+                            {% if app.status == 'Submitted' %}background-color: #DBEAFE; color: #1E40AF;
+                            {% elif app.status == 'Under Review' %}background-color: #FEF3C7; color: #92400E;
+                            {% elif app.status == 'Accepted' %}background-color: #D1FAE5; color: #065F46;
+                            {% elif app.status == 'Rejected' %}background-color: #FEE2E2; color: #991B1B;{% endif %}">
+                                {{ app.status }}
+                            </span>
+                        </td>
+                        <td>{{ app.submission_date.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('student.applications') }}" class="btn btn-secondary">View All Applications</a>
+            </div>
+            {% else %}
+            <p>You haven't applied to any internships yet.</p>
+            <div class="mt-4">
+                <a href="{{ url_for('student.internships') }}" class="btn btn-primary">Find Internships</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div>
+        <div class="card" style="background-color: var(--secondary); color: white;">
+            <h3 style="color: white;">Your Profile</h3>
+            {% if profile.first_name and profile.university %}
+            <p style="margin-bottom: 0.5rem;"><strong>Name:</strong> {{ profile.first_name }} {{ profile.last_name }}</p>
+            <p style="margin-bottom: 0.5rem;"><strong>University:</strong> {{ profile.university }}</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Major:</strong> {{ profile.major }}</p>
+            <div style="margin-top: 1.5rem;">
+                <a href="{{ url_for('student.profile') }}" class="btn btn-primary" style="width: 100%; border: 1px solid white;">Edit Profile</a>
+            </div>
+            {% else %}
+            <p style="margin-bottom: 1rem;">Your profile is incomplete. Employers want to know more about you!</p>
+            <a href="{{ url_for('student.profile') }}" class="btn btn-primary" style="width: 100%; background-color: white; color: var(--secondary);">Complete Profile</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

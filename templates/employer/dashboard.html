@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Employer Dashboard - OIMS{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-3">
+    <div style="grid-column: span 2;">
+        <h2>Welcome back, {% if profile.company_name %}{{ profile.company_name }}{% else %}{{ current_user.email }}{% endif %}!</h2>
+        <p style="color: var(--text-main); margin-bottom: 2rem;">Manage your internship postings and review incoming applications.</p>
+        
+        <div class="grid grid-cols-2" style="margin-bottom: 2rem;">
+            <div class="card text-center" style="margin-bottom: 0;">
+                <h3 style="font-size: 2.5rem; color: var(--accent); margin-bottom: 0.5rem;">{{ profile.internships|length }}</h3>
+                <p style="color: var(--secondary); font-weight: 500;">Active Postings</p>
+            </div>
+            <div class="card text-center" style="margin-bottom: 0;">
+                {% set total_apps = namespace(value=0) %}
+                {% for internship in profile.internships %}
+                    {% set total_apps.value = total_apps.value + internship.applications|length %}
+                {% endfor %}
+                <h3 style="font-size: 2.5rem; color: var(--status-success); margin-bottom: 0.5rem;">{{ total_apps.value }}</h3>
+                <p style="color: var(--secondary); font-weight: 500;">Total Applications</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="margin: 0;">Recent Postings</h3>
+                <a href="{{ url_for('employer.post_internship') }}" class="btn btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">+ New Posting</a>
+            </div>
+            
+            {% if profile.internships %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Applications</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for internship in profile.internships[-3:]|reverse %}
+                    <tr>
+                        <td>{{ internship.title }}</td>
+                        <td>{{ internship.applications|length }} applicants</td>
+                        <td>
+                            <span style="padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
+                            {% if internship.status == 'Open' %}background-color: #D1FAE5; color: #065F46;
+                            {% else %}background-color: #F3F4F6; color: #4B5563;{% endif %}">
+                                {{ internship.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('employer.applicants', internship_id=internship.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">View Applicants</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('employer.manage_internships') }}" class="btn btn-secondary">Manage All Postings</a>
+            </div>
+            {% else %}
+            <p>You haven't posted any internships yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div>
+        <div class="card" style="background-color: var(--secondary); color: white;">
+            <h3 style="color: white;">Company Profile</h3>
+            {% if profile.company_name %}
+            <p style="margin-bottom: 0.5rem;"><strong>Company:</strong> {{ profile.company_name }}</p>
+            {% if profile.website %}
+            <p style="margin-bottom: 0.5rem;"><strong>Website:</strong> {{ profile.website }}</p>
+            {% endif %}
+            <div style="margin-top: 1.5rem;">
+                <a href="{{ url_for('employer.profile') }}" class="btn btn-primary" style="width: 100%; border: 1px solid white;">Edit Profile</a>
+            </div>
+            {% else %}
+            <p style="margin-bottom: 1rem;">Your company profile is incomplete.</p>
+            <a href="{{ url_for('employer.profile') }}" class="btn btn-primary" style="width: 100%; background-color: white; color: var(--secondary);">Complete Profile</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="card" style="margin-top: 2rem;">
+    <h3 style="margin-bottom: 1.5rem; text-align: center;">Application Statuses</h3>
+    <div style="max-width: 600px; margin: 0 auto;">
+        <canvas id="statusChart"></canvas>
+    </div>
+</div>
+
+<script>
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Submitted', 'Under Review', 'Accepted', 'Rejected'],
+            datasets: [{
+                data: [{{ app_status_count.Submitted }}, {{ app_status_count['Under Review'] }}, {{ app_status_count.Accepted }}, {{ app_status_count.Rejected }}],
+                backgroundColor: ['#6B7280', '#3B82F6', '#10B981', '#EF4444']
+            }]
+        }
+    });
+</script>
+{% endblock %}

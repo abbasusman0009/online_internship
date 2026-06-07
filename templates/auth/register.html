@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - OIMS{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 2rem auto;">
+    <h2 class="text-center">Register</h2>
+    <form method="POST" action="{{ url_for('auth.register') }}">
+        
+        <div class="form-group">
+            <label class="form-label">I am a:</label>
+            <div style="display: flex; gap: 1rem;">
+                <label style="cursor: pointer;">
+                    <input type="radio" name="role" value="student" id="role_student" onchange="toggleRoleFields()" required {% if request.args.get('role') != 'employer' %}checked{% endif %}> Student
+                </label>
+                <label style="cursor: pointer;">
+                    <input type="radio" name="role" value="employer" id="role_employer" onchange="toggleRoleFields()" required {% if request.args.get('role') == 'employer' %}checked{% endif %}> Employer
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required minlength="6">
+        </div>
+        
+        <!-- Student Fields -->
+        <div id="student_fields" style="display: block;">
+            <div class="grid grid-cols-2">
+                <div class="form-group">
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input type="text" id="first_name" name="first_name" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" class="form-control">
+                </div>
+            </div>
+        </div>
+
+        <!-- Employer Fields -->
+        <div id="employer_fields" style="display: none;">
+            <div class="form-group">
+                <label for="company_name" class="form-label">Company Name</label>
+                <input type="text" id="company_name" name="company_name" class="form-control">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Register</button>
+    </form>
+    <p class="text-center mt-4">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>
+    </p>
+</div>
+
+<script>
+    function toggleRoleFields() {
+        const isStudent = document.getElementById('role_student').checked;
+        document.getElementById('student_fields').style.display = isStudent ? 'block' : 'none';
+        document.getElementById('employer_fields').style.display = isStudent ? 'none' : 'block';
+        
+        // Toggle required attributes to prevent form validation errors on hidden fields
+        document.getElementById('first_name').required = isStudent;
+        document.getElementById('last_name').required = isStudent;
+        document.getElementById('company_name').required = !isStudent;
+    }
+    
+    // Run on load
+    toggleRoleFields();
+</script>
+{% endblock %}
